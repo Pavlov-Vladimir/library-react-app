@@ -94,7 +94,7 @@ export default function AddBookForm() {
                     className="w-full h-full flex items-center cursor-pointer"
                   >
                     {formData.cover && (
-                        <span className="p-2">{formData.cover.name}</span>
+                      <span className="p-2">{formData.cover.name}</span>
                     )}
                     <span className="inline-flex ml-auto px-6 py-2 border-l border-gray-300 h-full items-center">
                       Choose...

@@ -1,4 +1,5 @@
-import AddBookForm from "../features/AddBookForm";
+import BookTabs from "../widgets/BookTabs";
+import AddBookForm from "../widgets/AddBookForm";
 import { Heading } from "@chakra-ui/react";
 
 function App() {
@@ -8,6 +9,7 @@ function App() {
         Library
       </Heading>
       <AddBookForm />
+      <BookTabs />
     </main>
   );
 }
