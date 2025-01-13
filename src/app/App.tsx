@@ -1,5 +1,5 @@
 import BookTabs from "../widgets/BookTabs";
-import AddBookForm from "../widgets/AddBookForm";
+import BookForm from "../widgets/BookForm";
 import { Heading } from "@chakra-ui/react";
 
 function App() {
@@ -8,7 +8,7 @@ function App() {
       <Heading as="h1" className="text-4xl text-teal-700 font-bold">
         Library
       </Heading>
-      <AddBookForm />
+      <BookForm />
       <BookTabs />
     </main>
   );

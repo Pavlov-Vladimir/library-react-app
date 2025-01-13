@@ -8,18 +8,28 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
-import { Field } from "../components/ui/field";
-import { FileUploadTrigger } from "../components/ui/file-upload";
+import { Field } from "@/components/ui/field";
+import { FileUploadTrigger } from "@/components/ui/file-upload";
 import { useState } from "react";
 
-export default function AddBookForm() {
-  const [formData, setFormData] = useState({
-    title: "",
-    cover: null as File | null,
-    genre: "",
-    author: "",
-    content: "",
-  });
+interface FormData {
+  title: string;
+  author: string;
+  cover: File | null;
+  genre: string;
+  content: string;
+}
+
+const initialFormData: FormData = {
+  title: "",
+  author: "",
+  cover: null,
+  genre: "",
+  content: "",
+};
+
+export default function BookForm() {
+  const [formData, setFormData] = useState({ ...initialFormData });
 
   const handleChange = (
     e:
@@ -43,23 +53,11 @@ export default function AddBookForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(formData);
-    setFormData({
-      title: "",
-      cover: null,
-      genre: "",
-      author: "",
-      content: "",
-    });
+    setFormData({ ...initialFormData });
   };
 
   const handleClear = () => {
-    setFormData({
-      title: "",
-      cover: null,
-      genre: "",
-      author: "",
-      content: "",
-    });
+    setFormData({ ...initialFormData });
   };
 
   return (
