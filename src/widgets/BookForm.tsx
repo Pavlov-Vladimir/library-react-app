@@ -1,10 +1,12 @@
 import {
+  Box,
   Button,
   FileUploadRoot,
   Heading,
   HStack,
   Input,
   Separator,
+  SimpleGrid,
   Textarea,
   VStack,
 } from "@chakra-ui/react";
@@ -50,8 +52,7 @@ export default function BookForm() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     console.log(formData);
     setFormData({ ...initialFormData });
   };
@@ -61,16 +62,27 @@ export default function BookForm() {
   };
 
   return (
-    <VStack className="p-3 mt-10 mx-auto border border-gray-300 rounded-md">
+    <VStack
+      p="3"
+      mt="10"
+      mx="auto"
+      borderWidth="1px"
+      borderColor="gray.muted"
+      rounded="md"
+    >
       <Heading
         as="h2"
-        className="text-2xl text-teal-700 font-bold text-left w-full"
+        color={"teal.700"}
+        fontWeight="bold"
+        size="2xl"
+        textAlign="left"
+        w="full"
       >
         Add Book
       </Heading>
-      <Separator className="border-t border-gray-300" />
-      <form className="mt-4 w-full" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-2 gap-24 items-center">
+      <Separator />
+      <Box as="form" w="full" mt="4">
+        <SimpleGrid columns={[1, null, 2]} gap="24">
           <VStack className="">
             <Field label="Title" orientation="horizontal">
               <Input
@@ -115,7 +127,6 @@ export default function BookForm() {
                 type="text"
                 value={formData.genre}
                 onChange={handleChange}
-                className="p-2 border border-gray-300 rounded-md"
               />
             </Field>
             <Field label="Author" orientation="horizontal">
@@ -124,41 +135,48 @@ export default function BookForm() {
                 type="text"
                 value={formData.author}
                 onChange={handleChange}
-                className="p-2 border border-gray-300 rounded-md"
               />
             </Field>
           </VStack>
-          <div className="h-full">
+          <Box h="full">
             <Field
+              h="full"
               label="Content"
               orientation="horizontal"
-              className="h-full items-start"
+              alignItems="flex-start"
             >
               <Textarea
                 name="content"
                 value={formData.content}
                 onChange={handleChange}
-                className="p-2 border border-gray-300 rounded-md h-full"
+                h="full"
               />
             </Field>
-          </div>
-        </div>
-        <HStack className="justify-center mt-6">
+          </Box>
+        </SimpleGrid>
+        <HStack justify="center" mt="6" className="justify-center mt-6">
           <Button
-            type="submit"
+            onClick={handleSubmit}
+            type="button"
+            bgColor={"teal.500"}
+            w="1/6"
+            minW="20"
             className="bg-teal-500 text-white font-semibold p-2 rounded-md w-1/6 min-w-20"
           >
             Add
           </Button>
           <Button
-            type="button"
             onClick={handleClear}
+            type="button"
+            bgColor={"yellow.500"}
+            w="1/6"
+            minW="20"
             className="bg-yellow-500 text-white font-semibold p-2 rounded-md w-1/6 min-w-20"
           >
             Clear
           </Button>
         </HStack>
-      </form>
+      </Box>
     </VStack>
   );
 }

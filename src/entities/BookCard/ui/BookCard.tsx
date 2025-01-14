@@ -1,34 +1,17 @@
-import {
-  Badge,
-  Box,
-  Card,
-  HStack,
-  Image,
-  IconButton,
-  Button,
-  DialogActionTrigger,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-} from "@chakra-ui/react";
+import { Badge, Box, Card, HStack, Image, IconButton } from "@chakra-ui/react";
 import { IoEyeOutline } from "react-icons/io5";
 import { CiEdit } from "react-icons/ci";
-import { Modal } from "@/shared/ui/Modal";
 
 interface BookCardProps {
   id: number;
   title: string;
   rating: number;
   reviewsNumber: number;
+  selectBook: (bookId: number) => void;
 }
 
 export function BookCard(props: BookCardProps) {
-  const { id, title, rating, reviewsNumber } = props;
+  const { id, title, rating, reviewsNumber, selectBook } = props;
 
   return (
     <Card.Root
@@ -60,13 +43,12 @@ export function BookCard(props: BookCardProps) {
       </Box>
       <div className="flex flex-col sm:flex-row p-2 gap-2 w-fit">
         <IconButton
+          onClick={() => selectBook(id)}
           aria-label="View book"
           className="border border-gray-300 rounded-md transition-colors duration-300 hover:bg-teal-100"
         >
           <IoEyeOutline />
         </IconButton>
-        <Modal />
-
         <IconButton
           aria-label="Edit book"
           className="border border-gray-300 rounded-md transition-colors duration-300 hover:bg-yellow-200"

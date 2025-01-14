@@ -1,6 +1,4 @@
-import {
-  Portal,
-} from "@chakra-ui/react";
+import { Portal } from "@chakra-ui/react";
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -9,34 +7,37 @@ import {
   DialogHeader,
   DialogRoot,
   DialogTitle,
-  // DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-// interface ModalProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   children: React.ReactNode;
-// };
+interface ModalProps {
+  isOpen: boolean;
+  onModalClose: () => void;
+  children: React.ReactNode;
+}
 
-export function Modal() {
-  // const { isOpen, onClose, children } = props;
+export function Modal(props: ModalProps) {
+  const { isOpen, onModalClose, children } = props;
 
   return (
     <Portal>
-      <DialogRoot>
+      <DialogRoot
+        open={isOpen}
+        size="lg"
+        placement="center"
+        onOpenChange={onModalClose}
+      >
         <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Dialog Title</DialogTitle>
+          <DialogHeader
+            py="2"
+            borderWidth="1px"
+            borderColor="transparent"
+            borderBottomColor="gray.muted"
+          >
+            <DialogTitle fontSize="3xl" textAlign="center">
+              Details
+            </DialogTitle>
           </DialogHeader>
-          <DialogBody>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-              eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </p>
-          </DialogBody>
-          <DialogFooter>
-
-          </DialogFooter>
+          <DialogBody>{children}</DialogBody>
           <DialogCloseTrigger />
         </DialogContent>
       </DialogRoot>
