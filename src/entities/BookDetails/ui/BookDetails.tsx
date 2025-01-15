@@ -13,6 +13,7 @@ import { DetailBookSchema } from "../model/types/detailBookSchema";
 import { ReviewList } from "@/entities/ReviewList";
 import { useEffect, useState } from "react";
 import { fetchBookById } from "@/app/services/api";
+import image from "@/shared/assets/images/stack-of-books.jpg";
 
 interface BookDetailsProps {
   bookId: number;
@@ -50,11 +51,7 @@ export function BookDetails({ bookId }: BookDetailsProps) {
         <VStack>
           <Stack direction={{ base: "column", md: "row" }} gap="10">
             <Box width={{ base: "100%", md: "40%" }}>
-              <Image
-                objectFit="cover"
-                src="https://st.depositphotos.com/1741875/1237/i/450/depositphotos_12376845-stock-photo-stack-of-old-books.jpg"
-                alt="Books"
-              />
+              <Image objectFit="cover" src={book.cover || image} alt="Books" />
               <HStack mt="4" gap="6">
                 {book.reviews.length !== 0 && (
                   <Badge>Review: {book.reviews.length}</Badge>
@@ -73,7 +70,9 @@ export function BookDetails({ bookId }: BookDetailsProps) {
               <Heading as="h4" size="lg" alignSelf="flex-start">
                 {book.author}
               </Heading>
-              <Text maxH="96" overflow='auto'>{book.content}</Text>
+              <Text maxH="96" overflow="auto">
+                {book.content}
+              </Text>
             </VStack>
           </Stack>
           <ReviewList reviews={book.reviews} />

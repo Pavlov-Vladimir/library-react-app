@@ -3,35 +3,35 @@ import {
   Button,
   FileUploadRoot,
   Heading,
+  Text,
   HStack,
   Input,
   Separator,
   SimpleGrid,
   Textarea,
   VStack,
+  FileUploadLabel,
 } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field";
 import { FileUploadTrigger } from "@/components/ui/file-upload";
 import { useState } from "react";
+import { BookFormSchema } from "@/shared/types/apiTypes";
+import { saveBook } from "@/app/services/api";
 
-interface FormData {
-  title: string;
-  author: string;
-  cover: File | null;
-  genre: string;
-  content: string;
-}
-
-const initialFormData: FormData = {
+const initialFormData: BookFormSchema = {
   title: "",
   author: "",
-  cover: null,
+  cover: "",
   genre: "",
   content: "",
 };
 
 export default function BookForm() {
-  const [formData, setFormData] = useState({ ...initialFormData });
+  const [formData, setFormData] = useState<BookFormSchema>({
+    ...initialFormData,
+  });
+  const [fileName, setFileName] = useState<string>("");
+  const [savedBookId, setSavedBookId] = useState<number | undefined>(undefined);
 
   const handleChange = (
     e:
@@ -46,18 +46,44 @@ export default function BookForm() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      cover: e.target.files?.[0] || null,
-    }));
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFileName(file.name);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      console.log(base64String);
+      setFormData((prev) => ({
+        ...prev,
+        cover: base64String,
+      }));
+    };
+    reader.readAsDataURL(file);
   };
 
-  const handleSubmit = () => {
-    console.log(formData);
-    setFormData({ ...initialFormData });
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const postBook = async () => {
+      console.log(formData);
+      try {
+        const savedBookId = await saveBook(formData);
+        setSavedBookId(savedBookId);
+      } catch (error) {
+        console.error("Error saving book:", error);
+        setSavedBookId(-1);
+      } finally {
+        setFormData({ ...initialFormData });
+        setFileName("");
+        setSavedBookId(undefined);
+      }
+    };
+    postBook();
   };
 
   const handleClear = () => {
+    setFileName("");
+    setSavedBookId(undefined);
     setFormData({ ...initialFormData });
   };
 
@@ -81,102 +107,152 @@ export default function BookForm() {
         Add Book
       </Heading>
       <Separator />
-      <Box as="form" w="full" mt="4">
-        <SimpleGrid columns={[1, null, 2]} gap="24">
-          <VStack className="">
-            <Field label="Title" orientation="horizontal">
-              <Input
-                name="title"
-                type="text"
-                value={formData.title}
-                onChange={handleChange}
-                className="p-2 border border-gray-300 rounded-md"
-              />
-            </Field>
-            <Field label="Cover" orientation="horizontal">
-              <FileUploadRoot>
-                <FileUploadTrigger
-                  asChild
-                  className="w-full border border-gray-300 rounded-md"
+      <form style={{ width: "100%" }} onSubmit={handleSubmit}>
+        <Box w="full" mt="4">
+          <SimpleGrid
+            columns={[1, null, 2]}
+            gapX={{ base: "14", lg: "24" }}
+            gapY="2"
+          >
+            <VStack className="">
+              <Field
+                required
+                label="Title"
+                orientation={{ base: "vertical", sm: "horizontal" }}
+              >
+                <Input
+                  name="title"
+                  type="text"
+                  value={formData.title}
+                  onChange={handleChange}
+                />
+              </Field>
+              <Field
+                label="Cover"
+                orientation={{ base: "vertical", sm: "horizontal" }}
+              >
+                <FileUploadRoot
+                  border="1px solid"
+                  borderColor="gray.muted"
+                  rounded="md"
                 >
-                  <label
-                    htmlFor="file-upload"
-                    className="w-full h-full flex items-center cursor-pointer"
-                  >
-                    {formData.cover && (
-                      <span className="p-2">{formData.cover.name}</span>
-                    )}
-                    <span className="inline-flex ml-auto px-6 py-2 border-l border-gray-300 h-full items-center">
-                      Choose...
-                      <input
-                        id="file-upload"
-                        onChange={handleFileChange}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                      />
-                    </span>
-                  </label>
-                </FileUploadTrigger>
-              </FileUploadRoot>
-            </Field>
+                  <FileUploadTrigger asChild>
+                    <FileUploadLabel
+                      htmlFor="file-upload"
+                      w="full"
+                      p="2"
+                      display="flex"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      fontWeight="400"
+                      cursor="pointer"
+                    >
+                      {fileName && (
+                        <Text
+                          as="span"
+                          display="inline-block"
+                          maxW="36"
+                          pr="2"
+                          overflow="hidden"
+                          truncate
+                        >
+                          {fileName}
+                        </Text>
+                      )}
+                      <Text
+                        as="span"
+                        pl="4"
+                        pr="2"
+                        display="inline-flex"
+                        borderLeft="1px solid"
+                        borderColor="gray.muted"
+                        ml="auto"
+                      >
+                        Choose...
+                        <input
+                          hidden
+                          id="file-upload"
+                          onChange={handleFileChange}
+                          type="file"
+                          accept="image/*"
+                        />
+                      </Text>
+                    </FileUploadLabel>
+                  </FileUploadTrigger>
+                </FileUploadRoot>
+              </Field>
 
-            <Field label="Genre" orientation="horizontal">
-              <Input
-                name="genre"
-                type="text"
-                value={formData.genre}
-                onChange={handleChange}
-              />
-            </Field>
-            <Field label="Author" orientation="horizontal">
-              <Input
-                name="author"
-                type="text"
-                value={formData.author}
-                onChange={handleChange}
-              />
-            </Field>
-          </VStack>
-          <Box h="full">
-            <Field
-              h="full"
-              label="Content"
-              orientation="horizontal"
-              alignItems="flex-start"
-            >
-              <Textarea
-                name="content"
-                value={formData.content}
-                onChange={handleChange}
+              <Field
+                required
+                label="Genre"
+                orientation={{ base: "vertical", sm: "horizontal" }}
+              >
+                <Input
+                  name="genre"
+                  type="text"
+                  value={formData.genre}
+                  onChange={handleChange}
+                />
+              </Field>
+              <Field
+                required
+                label="Author"
+                orientation={{ base: "vertical", sm: "horizontal" }}
+              >
+                <Input
+                  name="author"
+                  type="text"
+                  value={formData.author}
+                  onChange={handleChange}
+                />
+              </Field>
+            </VStack>
+            <Box h="full">
+              <Field
+                required
                 h="full"
-              />
-            </Field>
-          </Box>
-        </SimpleGrid>
-        <HStack justify="center" mt="6" className="justify-center mt-6">
-          <Button
-            onClick={handleSubmit}
-            type="button"
-            bgColor={"teal.500"}
-            w="1/6"
-            minW="20"
-            className="bg-teal-500 text-white font-semibold p-2 rounded-md w-1/6 min-w-20"
+                label="Content"
+                orientation={{ base: "vertical", sm: "horizontal" }}
+                alignItems="flex-start"
+              >
+                <Textarea
+                  name="content"
+                  value={formData.content}
+                  onChange={handleChange}
+                  h="full"
+                  minH="32"
+                />
+              </Field>
+            </Box>
+          </SimpleGrid>
+          <HStack
+            justify="center"
+            mt="6"
+            justifyItems="center"
+            spaceX={{ base: "2", sm: "4" }}
           >
-            Add
-          </Button>
-          <Button
-            onClick={handleClear}
-            type="button"
-            bgColor={"yellow.500"}
-            w="1/6"
-            minW="20"
-            className="bg-yellow-500 text-white font-semibold p-2 rounded-md w-1/6 min-w-20"
-          >
-            Clear
-          </Button>
-        </HStack>
-      </Box>
+            <Button
+              type="submit"
+              w="1/6"
+              minW="20"
+              colorPalette="green"
+              variant="surface"
+            >
+              Add
+            </Button>
+            <Button
+              onClick={handleClear}
+              type="button"
+              w="1/6"
+              minW="20"
+              colorPalette="yellow"
+              variant="surface"
+            >
+              Clear
+            </Button>
+          </HStack>
+        </Box>
+      </form>
     </VStack>
   );
 }
