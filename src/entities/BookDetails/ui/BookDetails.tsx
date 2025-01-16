@@ -63,12 +63,12 @@ export function BookDetails({ bookId }: BookDetailsProps) {
                 )}
               </HStack>
             </Box>
-            <VStack width={{ base: "100%", md: "60%" }}>
-              <Heading as="h3" size="2xl" alignSelf="flex-start">
+            <VStack width={{ base: "100%", md: "60%" }} alignItems="flex-start">
+              <Heading as="h3" size="3xl" color={"teal.700"} fontWeight={700}>
                 {book.title}
               </Heading>
-              <Heading as="h4" size="lg" alignSelf="flex-start">
-                {book.author}
+              <Heading as="h4" size="lg" color="gray.600">
+                {book.author}, {book.genre}
               </Heading>
               <Text maxH="96" overflow="auto">
                 {book.content}

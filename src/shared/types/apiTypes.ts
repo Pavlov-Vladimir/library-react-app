@@ -5,7 +5,7 @@ export type ApiEndpoints = {
 };
 
 export type BookFormSchema = {
-  // id?: number;
+  id?: number;
   title: string;
   cover: string;
   genre: string;

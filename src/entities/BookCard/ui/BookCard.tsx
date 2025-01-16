@@ -2,6 +2,7 @@ import { Badge, Box, Card, Image, IconButton, Flex } from "@chakra-ui/react";
 import { IoEyeOutline } from "react-icons/io5";
 import { AiOutlineEdit } from "react-icons/ai";
 import image from "@/shared/assets/images/stack-of-books.jpg";
+import { ACTION_TRIGGER_TYPE } from "@/shared/constants/common";
 
 interface BookCardProps {
   id: number;
@@ -9,16 +10,20 @@ interface BookCardProps {
   cover: string;
   rating: number;
   reviewsNumber: number;
-  selectBook: (bookId: number) => void;
+  selectBook: (bookId: number, action: ACTION_TRIGGER_TYPE) => void;
 }
 
 export function BookCard(props: BookCardProps) {
   const { id, title, cover, rating, reviewsNumber, selectBook } = props;
 
-  console.log(cover);
-
   return (
-    <Card.Root flexDirection="row" overflow="hidden" maxW="xl" mx="auto">
+    <Card.Root
+      flexDirection="row"
+      overflow="hidden"
+      maxW="xl"
+      mx="auto"
+      shadow="sm"
+    >
       <Box w="25%" h="100%">
         <Image objectFit="cover" alt="Books" src={cover || image} />
       </Box>
@@ -41,7 +46,7 @@ export function BookCard(props: BookCardProps) {
         </Card.Body>
         <Flex gap="2" p="2" justify="flex-end" ml="auto">
           <IconButton
-            onClick={() => selectBook(id)}
+            onClick={() => selectBook(id, ACTION_TRIGGER_TYPE.ADD)}
             aria-label="View book"
             colorPalette="green"
             variant="surface"
@@ -50,6 +55,7 @@ export function BookCard(props: BookCardProps) {
             <IoEyeOutline />
           </IconButton>
           <IconButton
+            onClick={() => selectBook(id, ACTION_TRIGGER_TYPE.EDIT)}
             aria-label="Edit book"
             colorPalette="yellow"
             variant="surface"

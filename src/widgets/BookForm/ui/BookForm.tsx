@@ -14,9 +14,11 @@ import {
 } from "@chakra-ui/react";
 import { Field } from "@/components/ui/field";
 import { FileUploadTrigger } from "@/components/ui/file-upload";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BookFormSchema } from "@/shared/types/apiTypes";
-import { saveBook } from "@/app/services/api";
+import { fetchBookById, saveBook } from "@/app/services/api";
+import { toaster } from "@/components/ui/toaster";
+import { ACTION_TRIGGER_TYPE } from "@/shared/constants/common";
 
 const initialFormData: BookFormSchema = {
   title: "",
@@ -26,12 +28,19 @@ const initialFormData: BookFormSchema = {
   content: "",
 };
 
-export default function BookForm() {
+interface BookFormProps {
+  formAction: ACTION_TRIGGER_TYPE;
+  bookId: number;
+  resetFormAction: () => void;
+}
+
+export function BookForm(props: BookFormProps) {
+  const { formAction, bookId, resetFormAction } = props;
+
   const [formData, setFormData] = useState<BookFormSchema>({
     ...initialFormData,
   });
   const [fileName, setFileName] = useState<string>("");
-  const [savedBookId, setSavedBookId] = useState<number | undefined>(undefined);
 
   const handleChange = (
     e:
@@ -65,17 +74,24 @@ export default function BookForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const postBook = async () => {
-      console.log(formData);
       try {
         const savedBookId = await saveBook(formData);
-        setSavedBookId(savedBookId);
+        if (savedBookId === -1) {
+          throw new Error("Error saving book");
+        }
+        toaster.success({
+          title: "Book saved",
+          description: `Book "${formData.title}" has been saved successfully`,
+        });
       } catch (error) {
         console.error("Error saving book:", error);
-        setSavedBookId(-1);
+        toaster.error({
+          title: "Error saving book",
+          description: "An error occurred while saving the book",
+        });
       } finally {
         setFormData({ ...initialFormData });
         setFileName("");
-        setSavedBookId(undefined);
       }
     };
     postBook();
@@ -83,9 +99,33 @@ export default function BookForm() {
 
   const handleClear = () => {
     setFileName("");
-    setSavedBookId(undefined);
     setFormData({ ...initialFormData });
+    resetFormAction();
   };
+
+  useEffect(() => {
+    if (formAction === ACTION_TRIGGER_TYPE.EDIT && bookId) {
+      const fetchData = async () => {
+        try {
+          const bookData = await fetchBookById(bookId);
+          if (bookData !== null) {
+            setFormData({
+              id: bookData.id,
+              title: bookData.title,
+              author: bookData.author,
+              cover: bookData.cover ?? "",
+              genre: bookData.genre,
+              content: bookData.content,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching book:", error);
+          setFormData({ ...initialFormData });
+        }
+      };
+      fetchData();
+    }
+  }, [formAction, bookId]);
 
   return (
     <VStack
@@ -95,6 +135,7 @@ export default function BookForm() {
       borderWidth="1px"
       borderColor="gray.muted"
       rounded="md"
+      bg="gray.100/50"
     >
       <Heading
         as="h2"
@@ -104,16 +145,12 @@ export default function BookForm() {
         textAlign="left"
         w="full"
       >
-        Add Book
+        {formAction === ACTION_TRIGGER_TYPE.ADD ? "Add" : "Edit"} Book
       </Heading>
       <Separator />
       <form style={{ width: "100%" }} onSubmit={handleSubmit}>
         <Box w="full" mt="4">
-          <SimpleGrid
-            columns={[1, null, 2]}
-            gapX={{ base: "14", lg: "24" }}
-            gapY="2"
-          >
+          <SimpleGrid columns={[1, null, 2]} gapX="14" gapY="2">
             <VStack className="">
               <Field
                 required
@@ -123,6 +160,8 @@ export default function BookForm() {
                 <Input
                   name="title"
                   type="text"
+                  bg="white"
+                  shadow="sm"
                   value={formData.title}
                   onChange={handleChange}
                 />
@@ -135,6 +174,8 @@ export default function BookForm() {
                   border="1px solid"
                   borderColor="gray.muted"
                   rounded="md"
+                  bg="white"
+                  shadow="sm"
                 >
                   <FileUploadTrigger asChild>
                     <FileUploadLabel
@@ -192,6 +233,8 @@ export default function BookForm() {
                   type="text"
                   value={formData.genre}
                   onChange={handleChange}
+                  bg="white"
+                  shadow="sm"
                 />
               </Field>
               <Field
@@ -204,6 +247,8 @@ export default function BookForm() {
                   type="text"
                   value={formData.author}
                   onChange={handleChange}
+                  bg="white"
+                  shadow="sm"
                 />
               </Field>
             </VStack>
@@ -221,6 +266,8 @@ export default function BookForm() {
                   onChange={handleChange}
                   h="full"
                   minH="32"
+                  bg="white"
+                  shadow="sm"
                 />
               </Field>
             </Box>
@@ -238,7 +285,7 @@ export default function BookForm() {
               colorPalette="green"
               variant="surface"
             >
-              Add
+              {formAction === ACTION_TRIGGER_TYPE.ADD ? "Add" : "Edit"}
             </Button>
             <Button
               onClick={handleClear}

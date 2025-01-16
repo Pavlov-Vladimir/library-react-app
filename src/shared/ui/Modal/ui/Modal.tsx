@@ -3,7 +3,6 @@ import {
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogRoot,
   DialogTitle,
@@ -28,12 +27,13 @@ export function Modal(props: ModalProps) {
       >
         <DialogContent>
           <DialogHeader
+            mb="4"
             py="2"
             borderWidth="1px"
             borderColor="transparent"
             borderBottomColor="gray.muted"
           >
-            <DialogTitle fontSize="3xl" textAlign="center">
+            <DialogTitle fontSize="3xl" textAlign="center" color="teal.700">
               Details
             </DialogTitle>
           </DialogHeader>

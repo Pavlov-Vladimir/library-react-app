@@ -1,15 +1,16 @@
 import { fetchBooks } from "@/app/services/api";
 import { BookSchema, BookCard } from "@/entities/BookCard";
 import { API_BOOKS_ENDPOINT } from "@/shared/constants/api";
+import { ACTION_TRIGGER_TYPE } from "@/shared/constants/common";
 import { ApiEndpoints } from "@/shared/types/apiTypes";
 import { VStack, Spinner, Text, SimpleGrid } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 
 type BookTabsProps = Partial<ApiEndpoints> & {
-  selectBook: (bookId: number) => void;
+  selectBook: (bookId: number, action: ACTION_TRIGGER_TYPE) => void;
 };
 
-export default function BookList({
+export function BookList({
   endpoint = API_BOOKS_ENDPOINT,
   selectBook,
 }: BookTabsProps) {

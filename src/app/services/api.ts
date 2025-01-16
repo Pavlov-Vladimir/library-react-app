@@ -42,6 +42,9 @@ export const saveBook = async (book: BookFormSchema): Promise<number> => {
       `${API_URL}${API_BOOKS_ENDPOINT}/save`,
       book
     );
+    if (response.status !== 200 && response.status !== 201) {
+      throw new Error("Error saving book");
+    }
     return response.data;
   } catch (error) {
     console.error(error);
