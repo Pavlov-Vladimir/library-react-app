@@ -62,7 +62,6 @@ export function BookForm(props: BookFormProps) {
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64String = reader.result as string;
-      console.log(base64String);
       setFormData((prev) => ({
         ...prev,
         cover: base64String,
