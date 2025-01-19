@@ -1,10 +1,10 @@
 export interface Book {
-    id?: number;
-    title: string;
-    author: string;
-    rating: number;
-    reviewsNumber: number;
-  };
+  id?: number;
+  title: string;
+  author: string;
+  rating: number;
+  reviewsNumber: number;
+}
 
 export interface DetailBook {
   id: number;
@@ -19,7 +19,9 @@ export interface DetailBook {
 }
 
 export interface Review {
-    id: number;
-    message: string;
-    reviewer: string;
-  }
+  id: number;
+  message: string;
+  reviewer: string;
+}
+
+export type BookAction = "view" | "edit";

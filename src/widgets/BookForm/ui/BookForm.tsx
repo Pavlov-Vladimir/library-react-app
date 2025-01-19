@@ -19,6 +19,11 @@ import { BookFormSchema } from "@/shared/types/apiTypes";
 import { fetchBookById, saveBook } from "@/app/services/api";
 import { toaster } from "@/components/ui/toaster";
 import { ACTION_TRIGGER_TYPE } from "@/shared/constants/common";
+import { useAppDispatch } from "@/app/store/hooks";
+import { useSelector } from "react-redux";
+import { getSelectedBook } from "@/app/store/selectors/books/getSelectedBook";
+import { getBookAction } from "@/app/store/selectors/books/getBookAction";
+import { resetSelectedBook, setBookAction } from "@/app/store/slices/booksSlice/booksSlice";
 
 const initialFormData: BookFormSchema = {
   title: "",
@@ -28,24 +33,20 @@ const initialFormData: BookFormSchema = {
   content: "",
 };
 
-interface BookFormProps {
-  formAction: ACTION_TRIGGER_TYPE;
-  bookId: number;
-  resetFormAction: () => void;
-}
-
-export function BookForm(props: BookFormProps) {
-  const { formAction, bookId, resetFormAction } = props;
-
+export function BookForm() {
   const [formData, setFormData] = useState<BookFormSchema>({
     ...initialFormData,
   });
   const [fileName, setFileName] = useState<string>("");
 
+  const dispatch = useAppDispatch();
+
+  const selectedBook = useSelector(getSelectedBook);
+  const bookAction = useSelector(getBookAction);
+  const formAction = bookAction === "edit" ? "Edit" : "Add";
+
   const handleChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -89,7 +90,10 @@ export function BookForm(props: BookFormProps) {
           description: "An error occurred while saving the book",
         });
       } finally {
-        setFormData({ ...initialFormData });
+        // setFormData({ ...initialFormData });
+        dispatch(resetSelectedBook());
+        dispatch(setBookAction(null));
+        // setFormData({ ...initialFormData });
         setFileName("");
       }
     };
@@ -97,34 +101,49 @@ export function BookForm(props: BookFormProps) {
   };
 
   const handleClear = () => {
+    // setFormData({ ...initialFormData });
+    // resetFormAction();
+    dispatch(resetSelectedBook());
+    dispatch(setBookAction(null));
+    // setFormData({ ...initialFormData });
     setFileName("");
-    setFormData({ ...initialFormData });
-    resetFormAction();
   };
 
   useEffect(() => {
-    if (formAction === ACTION_TRIGGER_TYPE.EDIT && bookId) {
-      const fetchData = async () => {
-        try {
-          const bookData = await fetchBookById(bookId);
-          if (bookData !== null) {
-            setFormData({
-              id: bookData.id,
-              title: bookData.title,
-              author: bookData.author,
-              cover: bookData.cover ?? "",
-              genre: bookData.genre,
-              content: bookData.content,
-            });
-          }
-        } catch (error) {
-          console.error("Error fetching book:", error);
-          setFormData({ ...initialFormData });
-        }
-      };
-      fetchData();
+    if (selectedBook && bookAction === "edit") {
+      setFormData({
+        id: selectedBook.id,
+        title: selectedBook.title,
+        author: selectedBook.author,
+        cover: selectedBook.cover ?? "",
+        genre: selectedBook.genre,
+        content: selectedBook.content,
+      });
+    } else {
+      setFormData({ ...initialFormData });
     }
-  }, [formAction, bookId]);
+    // if (bookAction === "edit" && bookId) {
+    //   const fetchData = async () => {
+    //     try {
+    //       const bookData = await fetchBookById(bookId);
+    //       if (bookData !== null) {
+    //         setFormData({
+    //           id: bookData.id,
+    //           title: bookData.title,
+    //           author: bookData.author,
+    //           cover: bookData.cover ?? "",
+    //           genre: bookData.genre,
+    //           content: bookData.content,
+    //         });
+    //       }
+    //     } catch (error) {
+    //       console.error("Error fetching book:", error);
+    //       setFormData({ ...initialFormData });
+    //     }
+    //   };
+    //   fetchData();
+    // }
+  }, [selectedBook, bookAction]);
 
   return (
     <VStack
@@ -144,12 +163,22 @@ export function BookForm(props: BookFormProps) {
         textAlign="left"
         w="full"
       >
-        {formAction === ACTION_TRIGGER_TYPE.ADD ? "Add" : "Edit"} Book
+        {formAction} Book
       </Heading>
       <Separator />
-      <form style={{ width: "100%" }} onSubmit={handleSubmit}>
-        <Box w="full" mt="4">
-          <SimpleGrid columns={[1, null, 2]} gapX="14" gapY="2">
+      <form
+        style={{ width: "100%" }}
+        onSubmit={handleSubmit}
+      >
+        <Box
+          w="full"
+          mt="4"
+        >
+          <SimpleGrid
+            columns={[1, null, 2]}
+            gapX="14"
+            gapY="2"
+          >
             <VStack className="">
               <Field
                 required
@@ -284,7 +313,7 @@ export function BookForm(props: BookFormProps) {
               colorPalette="green"
               variant="surface"
             >
-              {formAction === ACTION_TRIGGER_TYPE.ADD ? "Add" : "Edit"}
+              {formAction}
             </Button>
             <Button
               onClick={handleClear}

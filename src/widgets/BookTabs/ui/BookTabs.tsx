@@ -1,15 +1,13 @@
 import { Tabs } from "@chakra-ui/react";
-import { API_RECOMMENDED_ENDPOINT } from "@/shared/constants/api";
-import { ACTION_TRIGGER_TYPE } from "@/shared/constants/common";
 import { BookList } from "@/widgets/BookList";
 
-interface BookTabsProps {
-  selectBook: (id: number, action: ACTION_TRIGGER_TYPE) => void;
-}
-
-export function BookTabs({ selectBook }: BookTabsProps) {
+export function BookTabs() {
   return (
-    <Tabs.Root mt="10" defaultValue="all" variant="outline">
+    <Tabs.Root
+      mt="10"
+      defaultValue="all"
+      variant="outline"
+    >
       <Tabs.List colorPalette="green">
         <Tabs.Trigger
           value="all"
@@ -32,14 +30,14 @@ export function BookTabs({ selectBook }: BookTabsProps) {
         value="all"
         p="4"
         borderWidth="1px"
-        borderColor="gray.muited"
+        borderColor="gray.muted"
         borderTopColor="transparent"
         h="96"
         overflowY="auto"
         bg="gray.100/50"
         shadow="sm"
       >
-        <BookList selectBook={selectBook} />
+        <BookList filter="all" />
       </Tabs.Content>
       <Tabs.Content
         value="recommended"
@@ -52,7 +50,7 @@ export function BookTabs({ selectBook }: BookTabsProps) {
         bg="gray.100/50"
         shadow="sm"
       >
-        <BookList endpoint={API_RECOMMENDED_ENDPOINT} selectBook={selectBook} />
+        <BookList filter="recommended" />
       </Tabs.Content>
     </Tabs.Root>
   );

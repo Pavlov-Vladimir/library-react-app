@@ -1,43 +1,13 @@
-import {
-  Box,
-  Heading,
-  Text,
-  Image,
-  Stack,
-  VStack,
-  Spinner,
-  HStack,
-  Badge,
-} from "@chakra-ui/react";
-import { DetailBookSchema } from "../model/types/detailBookSchema";
+import { Box, Heading, Text, Image, Stack, VStack, Spinner, HStack, Badge } from "@chakra-ui/react";
 import { ReviewList } from "@/entities/ReviewList";
-import { useEffect, useState } from "react";
-import { fetchBookById } from "@/app/services/api";
 import image from "@/shared/assets/images/stack-of-books.jpg";
+import { useSelector } from "react-redux";
+import { getSelectedBook } from "@/app/store/selectors/books/getSelectedBook";
+import { getBooksIsLoading } from "@/app/store/selectors/books/getBooksIsLoading";
 
-interface BookDetailsProps {
-  bookId: number;
-}
-
-export function BookDetails({ bookId }: BookDetailsProps) {
-  const [book, setBook] = useState<DetailBookSchema | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const bookData = await fetchBookById(bookId);
-        setBook(bookData);
-      } catch (error) {
-        console.error("Error fetching book:", error);
-        setBook(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [bookId]);
+export function BookDetails() {
+  const book = useSelector(getSelectedBook);
+  const isLoading = useSelector(getBooksIsLoading);
 
   return (
     <>
@@ -49,13 +19,21 @@ export function BookDetails({ bookId }: BookDetailsProps) {
       )}
       {book ? (
         <VStack>
-          <Stack direction={{ base: "column", md: "row" }} gap="10">
+          <Stack
+            direction={{ base: "column", md: "row" }}
+            gap="10"
+          >
             <Box width={{ base: "100%", md: "40%" }}>
-              <Image objectFit="cover" src={book.cover || image} alt="Books" />
-              <HStack mt="4" gap="6">
-                {book.reviews.length !== 0 && (
-                  <Badge>Review: {book.reviews.length}</Badge>
-                )}
+              <Image
+                objectFit="cover"
+                src={book.cover || image}
+                alt="Books"
+              />
+              <HStack
+                mt="4"
+                gap="6"
+              >
+                {book.reviews.length !== 0 && <Badge>Review: {book.reviews.length}</Badge>}
                 {book.rating === 0 ? (
                   <Badge>Not rated yet</Badge>
                 ) : (
@@ -63,14 +41,29 @@ export function BookDetails({ bookId }: BookDetailsProps) {
                 )}
               </HStack>
             </Box>
-            <VStack width={{ base: "100%", md: "60%" }} alignItems="flex-start">
-              <Heading as="h3" size="3xl" color={"teal.700"} fontWeight={700}>
+            <VStack
+              width={{ base: "100%", md: "60%" }}
+              alignItems="flex-start"
+            >
+              <Heading
+                as="h3"
+                size="3xl"
+                color={"teal.700"}
+                fontWeight={700}
+              >
                 {book.title}
               </Heading>
-              <Heading as="h4" size="lg" color="gray.600">
+              <Heading
+                as="h4"
+                size="lg"
+                color="gray.600"
+              >
                 {book.author}, {book.genre}
               </Heading>
-              <Text maxH="96" overflow="auto">
+              <Text
+                maxH="96"
+                overflow="auto"
+              >
                 {book.content}
               </Text>
             </VStack>

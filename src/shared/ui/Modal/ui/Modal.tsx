@@ -33,7 +33,11 @@ export function Modal(props: ModalProps) {
             borderColor="transparent"
             borderBottomColor="gray.muted"
           >
-            <DialogTitle fontSize="3xl" textAlign="center" color="teal.700">
+            <DialogTitle
+              fontSize="3xl"
+              textAlign="center"
+              color="teal.700"
+            >
               Details
             </DialogTitle>
           </DialogHeader>
