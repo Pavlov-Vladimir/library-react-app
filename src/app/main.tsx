@@ -1,7 +1,6 @@
 import { createRoot } from "react-dom/client";
 import "./index.css";
-// import App from "./App.tsx";
-import App from "./AppV2.tsx";
+import App from "./App.tsx";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { Provider } from "react-redux";
 import store from "./store/store";

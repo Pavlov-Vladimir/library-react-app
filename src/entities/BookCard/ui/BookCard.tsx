@@ -4,7 +4,8 @@ import { AiOutlineEdit } from "react-icons/ai";
 import image from "@/shared/assets/images/stack-of-books.jpg";
 import { Book, BookAction } from "@/app/store/types/entities.types";
 import { useAppDispatch } from "@/app/store/hooks";
-import { setBookAction, setSelectedBook } from "@/app/store/slices/booksSlice/booksSlice";
+import { setBookAction } from "@/app/store/slices/booksSlice/booksSlice";
+import { setSelectedBook } from "@/app/store/slices/booksSlice/thunks";
 
 interface BookCardProps {
   book: Book;
@@ -21,39 +22,14 @@ export function BookCard({ book }: BookCardProps) {
   };
 
   return (
-    <Card.Root
-      flexDirection="row"
-      overflow="hidden"
-      maxW="xl"
-      mx="auto"
-      shadow="sm"
-    >
-      <Box
-        w="25%"
-        h="100%"
-      >
-        <Image
-          src={image}
-          objectFit="cover"
-          alt="Books"
-        />
+    <Card.Root flexDirection="row" overflow="hidden" maxW="xl" mx="auto" shadow="sm">
+      <Box w="25%" h="100%">
+        <Image src={image} objectFit="cover" alt="Books" />
       </Box>
-      <Flex
-        w="75%"
-        wrap="wrap"
-      >
-        <Card.Body
-          flexGrow="1"
-          p={{ base: "2", md: "4", lg: "6" }}
-          minW="44"
-        >
+      <Flex w="75%" wrap="wrap">
+        <Card.Body flexGrow="1" p={{ base: "2", md: "4", lg: "6" }} minW="44">
           <Card.Title mb={{ md: "2" }}>{title}</Card.Title>
-          <Flex
-            mt={{ base: "2", md: "4" }}
-            gapX={{ base: "3", sm: "6" }}
-            gapY="2"
-            wrap="wrap"
-          >
+          <Flex mt={{ base: "2", md: "4" }} gapX={{ base: "3", sm: "6" }} gapY="2" wrap="wrap">
             {reviewsNumber != 0 && <Badge>Review: {reviewsNumber}</Badge>}
             {rating === 0 ? (
               <Badge>Not rated yet</Badge>
@@ -62,12 +38,7 @@ export function BookCard({ book }: BookCardProps) {
             )}
           </Flex>
         </Card.Body>
-        <Flex
-          gap="2"
-          p="2"
-          justify="flex-end"
-          ml="auto"
-        >
+        <Flex gap="2" p="2" justify="flex-end" ml="auto">
           <IconButton
             onClick={() => onSelectBook(id!, "view")}
             aria-label="View book"

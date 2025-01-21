@@ -1,8 +1,8 @@
 import { Stack, Text, Heading, Separator } from "@chakra-ui/react";
-import { ReviewSchema } from "../model/types/reviewSchema";
+import { Review as ReviewType } from "@/app/store/types/entities.types";
 
 interface ReviewProps {
-  review: ReviewSchema;
+  review: ReviewType;
 }
 
 export function Review({ review }: ReviewProps) {
@@ -10,7 +10,9 @@ export function Review({ review }: ReviewProps) {
     <>
       <Separator />
       <Stack>
-        <Heading as="h4" size='lg'>{review.reviewer}</Heading>
+        <Heading as="h4" size="lg">
+          {review.reviewer}
+        </Heading>
         <Text>{review.message}</Text>
       </Stack>
     </>

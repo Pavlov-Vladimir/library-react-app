@@ -16,14 +16,13 @@ import { Field } from "@/components/ui/field";
 import { FileUploadTrigger } from "@/components/ui/file-upload";
 import { useEffect, useState } from "react";
 import { BookFormSchema } from "@/shared/types/apiTypes";
-import { fetchBookById, saveBook } from "@/app/services/api";
 import { toaster } from "@/components/ui/toaster";
-import { ACTION_TRIGGER_TYPE } from "@/shared/constants/common";
-import { useAppDispatch } from "@/app/store/hooks";
-import { useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { getSelectedBook } from "@/app/store/selectors/books/getSelectedBook";
 import { getBookAction } from "@/app/store/selectors/books/getBookAction";
 import { resetSelectedBook, setBookAction } from "@/app/store/slices/booksSlice/booksSlice";
+import { getBooksError } from "@/app/store/selectors/books/getBooksError";
+import { saveBook } from "@/app/store/slices/booksSlice/thunks";
 
 const initialFormData: BookFormSchema = {
   title: "",
@@ -41,8 +40,9 @@ export function BookForm() {
 
   const dispatch = useAppDispatch();
 
-  const selectedBook = useSelector(getSelectedBook);
-  const bookAction = useSelector(getBookAction);
+  const error = useAppSelector(getBooksError);
+  const selectedBook = useAppSelector(getSelectedBook);
+  const bookAction = useAppSelector(getBookAction);
   const formAction = bookAction === "edit" ? "Edit" : "Add";
 
   const handleChange = (
@@ -73,39 +73,25 @@ export function BookForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const postBook = async () => {
-      try {
-        const savedBookId = await saveBook(formData);
-        if (savedBookId === -1) {
-          throw new Error("Error saving book");
-        }
-        toaster.success({
-          title: "Book saved",
-          description: `Book "${formData.title}" has been saved successfully`,
-        });
-      } catch (error) {
-        console.error("Error saving book:", error);
-        toaster.error({
-          title: "Error saving book",
-          description: "An error occurred while saving the book",
-        });
-      } finally {
-        // setFormData({ ...initialFormData });
-        dispatch(resetSelectedBook());
-        dispatch(setBookAction(null));
-        // setFormData({ ...initialFormData });
-        setFileName("");
-      }
-    };
-    postBook();
+    dispatch(saveBook(formData));
+    setFormData({ ...initialFormData });
+    setFileName("");
+    if (error) {
+      toaster.error({
+        title: "Error saving book",
+        description: "An error occurred while saving the book",
+      });
+    } else {
+      toaster.success({
+        title: "Book saved",
+        description: `Book "${formData.title}" has been saved successfully`,
+      });
+    }
   };
 
   const handleClear = () => {
-    // setFormData({ ...initialFormData });
-    // resetFormAction();
     dispatch(resetSelectedBook());
     dispatch(setBookAction(null));
-    // setFormData({ ...initialFormData });
     setFileName("");
   };
 
@@ -122,27 +108,6 @@ export function BookForm() {
     } else {
       setFormData({ ...initialFormData });
     }
-    // if (bookAction === "edit" && bookId) {
-    //   const fetchData = async () => {
-    //     try {
-    //       const bookData = await fetchBookById(bookId);
-    //       if (bookData !== null) {
-    //         setFormData({
-    //           id: bookData.id,
-    //           title: bookData.title,
-    //           author: bookData.author,
-    //           cover: bookData.cover ?? "",
-    //           genre: bookData.genre,
-    //           content: bookData.content,
-    //         });
-    //       }
-    //     } catch (error) {
-    //       console.error("Error fetching book:", error);
-    //       setFormData({ ...initialFormData });
-    //     }
-    //   };
-    //   fetchData();
-    // }
   }, [selectedBook, bookAction]);
 
   return (
@@ -155,36 +120,15 @@ export function BookForm() {
       rounded="md"
       bg="gray.100/50"
     >
-      <Heading
-        as="h2"
-        color={"teal.700"}
-        fontWeight="bold"
-        size="2xl"
-        textAlign="left"
-        w="full"
-      >
+      <Heading as="h2" color={"teal.700"} fontWeight="bold" size="2xl" textAlign="left" w="full">
         {formAction} Book
       </Heading>
       <Separator />
-      <form
-        style={{ width: "100%" }}
-        onSubmit={handleSubmit}
-      >
-        <Box
-          w="full"
-          mt="4"
-        >
-          <SimpleGrid
-            columns={[1, null, 2]}
-            gapX="14"
-            gapY="2"
-          >
+      <form style={{ width: "100%" }} onSubmit={handleSubmit}>
+        <Box w="full" mt="4">
+          <SimpleGrid columns={[1, null, 2]} gapX="14" gapY="2">
             <VStack className="">
-              <Field
-                required
-                label="Title"
-                orientation={{ base: "vertical", sm: "horizontal" }}
-              >
+              <Field required label="Title" orientation={{ base: "vertical", sm: "horizontal" }}>
                 <Input
                   name="title"
                   type="text"
@@ -194,10 +138,7 @@ export function BookForm() {
                   onChange={handleChange}
                 />
               </Field>
-              <Field
-                label="Cover"
-                orientation={{ base: "vertical", sm: "horizontal" }}
-              >
+              <Field label="Cover" orientation={{ base: "vertical", sm: "horizontal" }}>
                 <FileUploadRoot
                   border="1px solid"
                   borderColor="gray.muted"
@@ -251,11 +192,7 @@ export function BookForm() {
                 </FileUploadRoot>
               </Field>
 
-              <Field
-                required
-                label="Genre"
-                orientation={{ base: "vertical", sm: "horizontal" }}
-              >
+              <Field required label="Genre" orientation={{ base: "vertical", sm: "horizontal" }}>
                 <Input
                   name="genre"
                   type="text"
@@ -265,11 +202,7 @@ export function BookForm() {
                   shadow="sm"
                 />
               </Field>
-              <Field
-                required
-                label="Author"
-                orientation={{ base: "vertical", sm: "horizontal" }}
-              >
+              <Field required label="Author" orientation={{ base: "vertical", sm: "horizontal" }}>
                 <Input
                   name="author"
                   type="text"
@@ -300,19 +233,8 @@ export function BookForm() {
               </Field>
             </Box>
           </SimpleGrid>
-          <HStack
-            justify="center"
-            mt="6"
-            justifyItems="center"
-            spaceX={{ base: "2", sm: "4" }}
-          >
-            <Button
-              type="submit"
-              w="1/6"
-              minW="20"
-              colorPalette="green"
-              variant="surface"
-            >
+          <HStack justify="center" mt="6" justifyItems="center" spaceX={{ base: "2", sm: "4" }}>
+            <Button type="submit" w="1/6" minW="20" colorPalette="green" variant="surface">
               {formAction}
             </Button>
             <Button

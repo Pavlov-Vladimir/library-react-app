@@ -1,8 +1,7 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { BookAction } from "../../types/entities.types";
 import { BooksSlice } from "../../types/slices.types";
-import { fetchBookById, fetchBooksApi } from "@/app/services/api";
-import { API_BOOKS_ENDPOINT, API_RECOMMENDED_ENDPOINT } from "@/shared/constants/api";
+import { saveBook, setAllBooks, setRecommendedBooks, setSelectedBook } from "./thunks";
 
 const initialState: BooksSlice = {
   books: [],
@@ -12,45 +11,6 @@ const initialState: BooksSlice = {
   isLoading: false,
   error: undefined,
 };
-
-export const setAllBooks = createAsyncThunk("setAllBooks", async (_, { rejectWithValue }) => {
-  try {
-    return await fetchBooksApi({ endpoint: API_BOOKS_ENDPOINT });
-  } catch (error) {
-    if (error instanceof Error) {
-      return rejectWithValue(error.message);
-    }
-    return rejectWithValue("An unknown error occurred");
-  }
-});
-
-export const setRecommendedBooks = createAsyncThunk(
-  "setRecommended",
-  async (_, { rejectWithValue }) => {
-    try {
-      return await fetchBooksApi({ endpoint: API_RECOMMENDED_ENDPOINT });
-    } catch (error) {
-      if (error instanceof Error) {
-        return rejectWithValue(error.message);
-      }
-      return rejectWithValue("An unknown error occurred");
-    }
-  }
-);
-
-export const setSelectedBook = createAsyncThunk(
-  "setSelectedBook",
-  async (id: number, { rejectWithValue }) => {
-    try {
-      return await fetchBookById(id);
-    } catch (error) {
-      if (error instanceof Error) {
-        return rejectWithValue(error.message);
-      }
-      return rejectWithValue("An unknown error occurred");
-    }
-  }
-);
 
 const handlePending = (state: BooksSlice) => {
   state.isLoading = true;
@@ -99,6 +59,28 @@ const booksSlice = createSlice({
       .addCase(setSelectedBook.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
+      })
+      .addCase(saveBook.pending, (state, action) => {
+        state.isLoading = true;
+        state.error = action.payload;
+      })
+      .addCase(saveBook.fulfilled, (state, action) => {
+        if (state.bookAction !== "edit") {
+          state.books.push(action.payload);
+        } else {
+          const founded = state.books.find((b) => b.id === action.payload.id);
+          if (founded) {
+            founded.author = action.payload.author;
+            founded.title = action.payload.title;
+          }
+        }
+        state.isLoading = false;
+        state.error = undefined;
+        state.bookAction = null;
+      })
+      .addCase(saveBook.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
       });
   },
 });
