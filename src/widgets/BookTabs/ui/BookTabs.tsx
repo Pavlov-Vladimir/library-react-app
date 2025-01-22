@@ -1,28 +1,15 @@
 import { Tabs } from "@chakra-ui/react";
 import { BookList } from "@/widgets/BookList";
+import { API_RECOMMENDED_ENDPOINT } from "@/shared/constants/api";
 
 export function BookTabs() {
   return (
-    <Tabs.Root
-      mt="10"
-      defaultValue="all"
-      variant="outline"
-    >
+    <Tabs.Root mt="10" defaultValue="all" variant="outline">
       <Tabs.List colorPalette="green">
-        <Tabs.Trigger
-          value="all"
-          px="4"
-          py="2"
-          _selected={{ bg: "gray.100/50" }}
-        >
+        <Tabs.Trigger value="all" px="4" py="2" _selected={{ bg: "gray.100/50" }}>
           All
         </Tabs.Trigger>
-        <Tabs.Trigger
-          value="recommended"
-          px="4"
-          py="2"
-          _selected={{ bg: "gray.100/50" }}
-        >
+        <Tabs.Trigger value="recommended" px="4" py="2" _selected={{ bg: "gray.100/50" }}>
           Recommended
         </Tabs.Trigger>
       </Tabs.List>
@@ -37,7 +24,7 @@ export function BookTabs() {
         bg="gray.100/50"
         shadow="sm"
       >
-        <BookList filter="all" />
+        <BookList />
       </Tabs.Content>
       <Tabs.Content
         value="recommended"
@@ -50,7 +37,7 @@ export function BookTabs() {
         bg="gray.100/50"
         shadow="sm"
       >
-        <BookList filter="recommended" />
+        <BookList source={API_RECOMMENDED_ENDPOINT} />
       </Tabs.Content>
     </Tabs.Root>
   );

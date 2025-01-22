@@ -21,8 +21,7 @@ import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { getSelectedBook } from "@/app/store/selectors/books/getSelectedBook";
 import { getBookAction } from "@/app/store/selectors/books/getBookAction";
 import { resetSelectedBook, setBookAction } from "@/app/store/slices/booksSlice/booksSlice";
-import { getBooksError } from "@/app/store/selectors/books/getBooksError";
-import { saveBook } from "@/app/store/slices/booksSlice/thunks";
+import { useSaveBookMutation } from "@/app/store/booksApi";
 
 const initialFormData: BookFormSchema = {
   title: "",
@@ -40,10 +39,11 @@ export function BookForm() {
 
   const dispatch = useAppDispatch();
 
-  const error = useAppSelector(getBooksError);
   const selectedBook = useAppSelector(getSelectedBook);
   const bookAction = useAppSelector(getBookAction);
   const formAction = bookAction === "edit" ? "Edit" : "Add";
+
+  const [saveBook] = useSaveBookMutation();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
@@ -73,25 +73,27 @@ export function BookForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    dispatch(saveBook(formData));
-    setFormData({ ...initialFormData });
-    setFileName("");
-    if (error) {
-      toaster.error({
-        title: "Error saving book",
-        description: "An error occurred while saving the book",
-      });
-    } else {
-      toaster.success({
-        title: "Book saved",
-        description: `Book "${formData.title}" has been saved successfully`,
-      });
-    }
+    saveBook(formData)
+      .unwrap()
+      .then(() => {
+        toaster.success({
+          title: "Book saved",
+          description: `Book "${formData.title}" has been saved successfully`,
+        });
+      })
+      .catch(() => {
+        toaster.error({
+          title: "Error saving book",
+          description: "An error occurred while saving the book",
+        });
+      })
+      .finally(() => handleClear());
   };
 
   const handleClear = () => {
     dispatch(resetSelectedBook());
     dispatch(setBookAction(null));
+    setFormData({ ...initialFormData });
     setFileName("");
   };
 

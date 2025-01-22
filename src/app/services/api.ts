@@ -3,7 +3,7 @@ import { ApiEndpoints, BookFormSchema } from "@/shared/types/apiTypes";
 import axios, { AxiosResponse } from "axios";
 import { Book, DetailBook } from "@/app/store/types/entities.types";
 
-export const fetchBooksApi = async ({ endpoint }: ApiEndpoints): Promise<Book[]> => {
+export const fetchBooksApi = async (endpoint: ApiEndpoints): Promise<Book[]> => {
   try {
     const response: AxiosResponse<Book[]> = await axios.get<Book[]>(API_URL + endpoint);
     return response.data;
